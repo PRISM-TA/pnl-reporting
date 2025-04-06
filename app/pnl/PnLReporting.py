@@ -1,5 +1,6 @@
 from app.models.TradeLog import TradeLog
 import pandas as pd
+import numpy as np
 
 def calculate_pnl(initial_capital: float, trade_logs: list[TradeLog]) -> float:
     current_capital = initial_capital
@@ -91,3 +92,49 @@ def calculate_returns(initial_capital: float, trade_logs: list[TradeLog]) -> pd.
     df = df[~df.index.duplicated(keep='last')]
     
     return df
+
+def calculate_max_drawdown(cumulative_returns):
+    # Calculate cumulative returns
+    peak = cumulative_returns[0]
+    max_drawdown = 0
+    
+    for ret in cumulative_returns:
+        if peak != 0:  # Check to prevent division by zero
+            if ret > peak:
+                peak = ret
+            drawdown = (peak - ret) / peak
+            if drawdown > max_drawdown:
+                max_drawdown = drawdown
+        else:
+            peak = ret  # Update the peak only if it's initially zero
+
+    return max_drawdown
+
+def calculate_sharpe_ratio(returns, risk_free_rate=0):
+    # Calculate the Sharpe Ratio
+    excess_returns = returns - risk_free_rate
+    sharpe_ratio = np.mean(excess_returns) / np.std(excess_returns)
+    return sharpe_ratio * np.sqrt(len(returns))  # Annualized
+
+def calculate_downside_deviation(returns, MAR=0):
+    """
+    Calculate downside deviation of returns
+    
+    Parameters:
+    returns (numpy.array): Array of returns
+    MAR (float): Minimum Acceptable Return, defaults to 0
+    
+    Returns:
+    float: Downside deviation
+    """
+    # Calculate negative deviations from MAR
+    negative_deviations = np.minimum(returns - MAR, 0)
+    
+    # Square the deviations and take the mean
+    squared_downside = np.square(negative_deviations)
+    mean_squared_downside = np.mean(squared_downside)
+    
+    # Take the square root to get downside deviation
+    downside_deviation = np.sqrt(mean_squared_downside)
+    
+    return downside_deviation

@@ -1,4 +1,5 @@
 from app.db.session import create_db_session
+from app.pnl.PnLReporting import calculate_downside_deviation
 from app.analysis.CumRetAnalysis import CumRetAnalysis, CumRetAnalysisParam
 from app.datafeed.DataFeeder import DataFeeder
 from app.datafeed.TradeLogger import TradeLogger
@@ -22,11 +23,15 @@ session = create_db_session(
 
 feeder = DataFeeder(session)
 trade_logger = TradeLogger(session)
-strategy_target = "RouletteStrategy"
+strategy_target = "RouletteStrategy_Expected"
 strategy_benchmark = "BuyAndHoldStrategy"
 
-# Initialize results storage
-results = []
+header = "{:<10} | {:<12} | {:<15}".format(
+    "Ticker", 
+    "Benchmark Drawdown Dev. (%)",
+    "Target Drawdown Dev. (%)"
+)
+print(header)
 
 for ticker in ["AAPL", "AXP", "BA", "CAT", "CSCO", "CVX", "DD", "DIS", "GE", "HD", "IBM", "INTC", "JNJ", "JPM", "KO", "MCD", "MMM", "MRK", "MSFT", "NKE", "PFE", "PG", "TRV", "UNH", "UTX", "VZ", "WMT", "XOM"]:
     # Initialize analyzer
@@ -45,4 +50,25 @@ for ticker in ["AAPL", "AXP", "BA", "CAT", "CSCO", "CVX", "DD", "DIS", "GE", "HD
     
     # Run analysis
     df = analyzer.run()
-    df.to_csv(f"{ticker}.csv")
+    # df.to_csv(f"{ticker}.csv")
+
+    # Calculate Downside Deviation
+    benchmark_downside_deviation = calculate_downside_deviation(df['benchmark_return_change_pct'].values)
+    target_downside_deviation = calculate_downside_deviation(df['target_return_change_pct'].values)
+
+    # # Calculate Maximum Drawdown
+    # benchmark_max_drawdown = calculate_max_drawdown(df['benchmark_cum_return_pct'].values)
+    # target_max_drawdown = calculate_max_drawdown(df['target_cum_return_pct'].values)
+    
+    # # Calculate Sharpe Ratio
+    # benchmark_sharpe_ratio = calculate_sharpe_ratio(
+    #     df['benchmark_return_change_pct'].values, 0.0425
+    # )
+    # target_sharpe_ratio = calculate_sharpe_ratio(
+    #     df['target_return_change_pct'].values, 0.0425
+    # )
+
+    
+
+    print(f"{ticker:<10} | {benchmark_downside_deviation:<12} | {target_downside_deviation:<15}")
+    
