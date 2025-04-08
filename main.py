@@ -23,7 +23,7 @@ session = create_db_session(
 
 feeder = DataFeeder(session)
 trade_logger = TradeLogger(session)
-strategy_target = "RouletteStrategy_Expected"
+strategy_target = "RouletteStrategy"
 strategy_benchmark = "BuyAndHoldStrategy"
 
 header = "{:<10} | {:<12} | {:<15}".format(
@@ -50,7 +50,7 @@ for ticker in ["AAPL", "AXP", "BA", "CAT", "CSCO", "CVX", "DD", "DIS", "GE", "HD
     
     # Run analysis
     df = analyzer.run()
-    # df.to_csv(f"{ticker}.csv")
+    df.to_csv(f"{ticker}.csv")
 
     # Calculate Downside Deviation
     benchmark_downside_deviation = calculate_downside_deviation(df['benchmark_return_change_pct'].values)
@@ -68,7 +68,6 @@ for ticker in ["AAPL", "AXP", "BA", "CAT", "CSCO", "CVX", "DD", "DIS", "GE", "HD
     #     df['target_return_change_pct'].values, 0.0425
     # )
 
-    
 
     print(f"{ticker:<10} | {benchmark_downside_deviation:<12} | {target_downside_deviation:<15}")
     
