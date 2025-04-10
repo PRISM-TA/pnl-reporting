@@ -9,7 +9,7 @@ import os
 import pandas as pd
 from datetime import datetime
 
-model = "CNNv0"
+model = "MLPv2"
 feature_set = "processed technical indicators (20 days)"
 
 load_dotenv()
@@ -23,7 +23,7 @@ session = create_db_session(
 
 feeder = DataFeeder(session)
 trade_logger = TradeLogger(session)
-strategy_target = "RouletteStrategy"
+strategy_target = "RouletteStrategy_Confident"
 strategy_benchmark = "BuyAndHoldStrategy"
 
 header = "{:<10} | {:<12} | {:<15}".format(
